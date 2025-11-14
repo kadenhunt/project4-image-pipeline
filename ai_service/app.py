@@ -2,7 +2,6 @@ from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import JSONResponse
 from PIL import Image, UnidentifiedImageError
 import io, torch
-import torchvision.transforms as T
 from torchvision.models import resnet18, ResNet18_Weights
 
 app = FastAPI(title="AI Classification Service")
@@ -13,13 +12,8 @@ model = resnet18(weights=weights)
 model.eval()
 labels = weights.meta["categories"]
 
-# Preprocessing
-preprocess = T.Compose([
-    T.Resize(256),
-    T.CenterCrop(224),
-    T.ToTensor(),
-    T.Normalize(mean=weights.meta["mean"], std=weights.meta["std"])
-])
+# Preprocessing - use the weights' built-in transforms
+preprocess = weights.transforms()
 
 @app.post("/predict")
 async def predict(image: UploadFile = File(...)):
@@ -33,7 +27,7 @@ async def predict(image: UploadFile = File(...)):
             content={"error": "Invalid or corrupted image."}
         )
 
-    # Preprocess
+    # Preprocess - weights.transforms() returns a tensor, add batch dimension
     x = preprocess(img).unsqueeze(0)
 
     # Inference
