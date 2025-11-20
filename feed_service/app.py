@@ -29,6 +29,10 @@ def trigger():
 
         # Save latest artifacts
         image = Image.open(f"{IMAGES_DIR}/{chosen}")
+        # Convert to RGB if image has transparency (RGBA, LA) or is palette mode
+        # JPEG format doesn't support transparency
+        if image.mode != 'RGB':
+            image = image.convert('RGB')
         image.save(f"{SHARED_DIR}/latest.jpg")
 
         with open(f"{SHARED_DIR}/latest.json", "w") as jf:

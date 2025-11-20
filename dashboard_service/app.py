@@ -19,7 +19,7 @@ def index():
 
     return render_template('index.html', class_name=class_name, confidence=confidence, error_message=error_message)
 
-@app.route('/trigger', methods = ['POST'])
+@app.route('/trigger', methods=['POST'])
 def trigger():
     response = requests.post(f'{FEED_SERVICE_URL}/trigger')
 
